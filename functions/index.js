@@ -1,14 +1,27 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
 admin.initializeApp();
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello World!");
+const express = require('express');
+const app = express();
+
+app.get('/posts', (req, res) => {
+admin
+ .firestore()
+.collection("posts")
+.get()
+.then((data) => {
+  const posts = [];
+  data.forEach((doc) => {
+    posts.push(doc.data());
+  });
+  return res.json(posts);
+})
+.catch((err) => console.error(err));
 });
+
+
 exports.getPosts = functions.https.onRequest((req, res) => {
   admin
       .firestore()
@@ -25,6 +38,9 @@ exports.getPosts = functions.https.onRequest((req, res) => {
 });
 
 exports.createPost = functions.https.onRequest((req, res) => {
+    if (req.method !== 'POST') {
+        return res.status(400).json({error: 'Method Not Allowed'})
+    }
   const newPost = {
     body: req.body.body,
     userId: req.body.userId,
@@ -42,3 +58,5 @@ exports.createPost = functions.https.onRequest((req, res) => {
         console.error(err);
       });
 });
+
+exports.api = functions.https.onRequest(app);

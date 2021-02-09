@@ -18,8 +18,24 @@ admin.initializeApp();
   firebase.initializeApp(config)
 
   // Signup Route
-  app.post('/posts', (req, res) => {
+  app.post('/signup', (req, res) => {
+    const newUser = {
+        email: req.body.email,
+        password: req.body.password,
+        confirmPassword: req.body.confirmPassword,
+        handle: req.body.handle
+    }
 
+    firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+    .then(data => {
+        return res.status(201).json({message: `user ${data.user.uid} signed up successfully!` })
+    })
+    .catch(err => {
+        console.error(err)
+        return res.status(500).json({error: err.code})
+    })
+
+  })
 
 app.get('/posts', (req, res) => {
 admin

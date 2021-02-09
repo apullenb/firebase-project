@@ -1,11 +1,12 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const app = require('express')();
+const API_KEY = require('./config')
 
 
 admin.initializeApp();
  const config = {
-    apiKey: "AIzaSyCaId3wXfSR9NGo2qksn_uTBaRYqci-h1I",
+    apiKey: API_KEY,
     authDomain: "facespace-a1792.firebaseapp.com",
     databaseURL: "https://facespace-a1792-default-rtdb.firebaseio.com",
     projectId: "facespace-a1792",

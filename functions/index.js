@@ -1,20 +1,41 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const app = require('express')();
+
 
 admin.initializeApp();
+ const config = {
+    apiKey: "AIzaSyCaId3wXfSR9NGo2qksn_uTBaRYqci-h1I",
+    authDomain: "facespace-a1792.firebaseapp.com",
+    databaseURL: "https://facespace-a1792-default-rtdb.firebaseio.com",
+    projectId: "facespace-a1792",
+    storageBucket: "facespace-a1792.appspot.com",
+    messagingSenderId: "459362051788",
+    appId: "1:459362051788:web:6916b0551c91d5f6c80469"
+  };
 
-const express = require('express');
-const app = express();
+  const firebase = require('firebase')
+  firebase.initializeApp(config)
+
+  // Signup Route
+  app.post('/posts', (req, res) => {
+
 
 app.get('/posts', (req, res) => {
 admin
  .firestore()
 .collection("posts")
+.orderBy('createdAt', 'desc')
 .get()
 .then((data) => {
   const posts = [];
   data.forEach((doc) => {
-    posts.push(doc.data());
+    posts.push({
+        postID: doc.id,
+        body: doc.data().body,
+        userId: doc.data().userId,
+        createdAt: doc.data().createdAt
+    });
   });
   return res.json(posts);
 })
@@ -22,29 +43,15 @@ admin
 });
 
 
-exports.getPosts = functions.https.onRequest((req, res) => {
-  admin
-      .firestore()
-      .collection("posts")
-      .get()
-      .then((data) => {
-        const posts = [];
-        data.forEach((doc) => {
-          posts.push(doc.data());
-        });
-        return res.json(posts);
-      })
-      .catch((err) => console.error(err));
-});
 
-exports.createPost = functions.https.onRequest((req, res) => {
+app.post('/posts', (req, res) => {
     if (req.method !== 'POST') {
         return res.status(400).json({error: 'Method Not Allowed'})
     }
   const newPost = {
     body: req.body.body,
     userId: req.body.userId,
-    createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+    createdAt: new Date().toISOString()
   };
 
   admin.firestore()
